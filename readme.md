@@ -13,4 +13,11 @@ cat cluster-keys.json | jq -r ".unseal_keys_b64[]"
 ```
 VAULT_UNSEAL_KEY=$(cat cluster-keys.json | jq -r ".unseal_keys_b64[]")
 kubectl exec vault-0 -- vault operator unseal $VAULT_UNSEAL_KEY
+kubectl exec vault-1 -- vault operator unseal $VAULT_UNSEAL_KEY
+kubectl exec vault-2 -- vault operator unseal $VAULT_UNSEAL_KEY
+```
+
+## Root Token
+```
+cat cluster-keys.json | jq -r ".root_token"
 ```
