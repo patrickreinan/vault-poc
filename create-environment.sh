@@ -60,7 +60,7 @@ port_forward () {
         vaultpid=$(cat $vaultpidfile)
         kill $vaultpid
     fi
-    kubectl  --context=$CONTEXT port-forward vault-0 8200:8200 &>/dev/null
+    kubectl  --context=$CONTEXT port-forward vault-0 8200:8200 & >/dev/null
     id=$!
     echo $id>$vaultpidfile
 
