@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  vault:
+    image: vault:1.11.3
+    volumes:
+      - ${PWD}/vault/config:/vault/config
+      - ${PWD}/vault/data:/vault/data
+    command: "vault server -config=/vault/config/config.hcl"
+    container_name: vault
+    cap_add:
+      - IPC_LOCK #vault needs to lock memory
+    ports:
+      - 8200:8200
+    environment:
+      - VAULT_ADDR=http://127.0.0.1:8200
+
+     
+     
+     
+
+
+    

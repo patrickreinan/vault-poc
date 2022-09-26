@@ -1,40 +1,52 @@
 # Vault
 
-## Prepare o seu ambiente
+
+## Executando o Vault
 ```sh
-kubectl config use-context vault
-kubectl get pods -l app.kubernetes.io/instance=vault
+docker compose up -d
+```
+
+A interface gráfica do Vault pode ser acessada por http://localhost:8200
+
+
+> Para executar os comando de inicialização e abertura do Vault será necessário abrir uma sessão com o _container_.
+
+```sh
+docker exec -it vault sh
 ```
 
 ## Inicializar
-```sh
-kubectl exec vault-0 -- vault operator init -key-shares=1 -key-threshold=1 -format=json > cluster-keys.json
-cat cluster-keys.json | jq -r ".unseal_keys_b64[]"
-```
 
-## Abrir
-```
-VAULT_UNSEAL_KEY=$(cat cluster-keys.json | jq -r ".unseal_keys_b64[]")
-kubectl exec vault-0 -- vault operator unseal $VAULT_UNSEAL_KEY
-kubectl exec vault-1 -- vault operator unseal $VAULT_UNSEAL_KEY
-kubectl exec vault-2 -- vault operator unseal $VAULT_UNSEAL_KEY
-```
-
-## Recuperar o root token
-```
-cat cluster-keys.json | jq -r ".root_token"
-```
-
-## Login 
-```sh
-kubectl exec --stdin=true --tty=true vault-0 -- /bin/sh
-```
-
-Em seguida
+Inicializa o Vault com 3 chaves compartilhadas e pelo menos duas necessárias, salvando as chaves em formato json na pasta de configurações
 
 ```sh
-vault login
+vault operator init -key-shares=3 -key-threshold=2 -format=json > /vault/data/cluster-keys.json
 ```
+## Desbloquear
+O vault está bloqueado para utilização, desbloqueio-o usando 2 das 3 chaves distintas presentes no arquivo cluster-keys.json (unseal_keys_b64):
+```sh
+KEY1=[chave aqui]
+KEY2=[chave aqui]
+vault operator unseal $KEY1
+vault operator unseal $KEY2
+```
+
+A saída deve mostrar que o Vault está inicializado e desbloqueado:
+```
+Key                     Value
+---                     -----
+Seal Type               shamir
+Initialized             true
+Sealed                  false
+```
+
+## Acessar
+Acesse o Vault usando o root token presente no arquivo ``cluster-keys.json``
+
+```sh
+vault login <token>
+```
+
 
 ## Ativar mecanismo KV
 ```sh
@@ -47,12 +59,12 @@ vault kv put secret/webapp/config username="static-user" password="static-passwo
 ```
 
 
-## Ativar e configurar autenticação do Kubernetes
+
 ```sh
-vault auth enable kubernetes
-vault write auth/kubernetes/config \
-    kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"
-
+vault policy write webapp - <<EOF
+path "secret/data/webapp/config" {
+  capabilities = ["read"]
+}
+EOF
 ```
-
 
