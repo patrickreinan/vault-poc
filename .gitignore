@@ -1,2 +1,2 @@
 cluster-keys.json
-vault/data
+vault/data/*
