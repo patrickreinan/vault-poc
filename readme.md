@@ -14,8 +14,10 @@
 
 ## Executar o Vault
 ```sh
-docker compose up -d
+docker compose up -d vault
 ```
+
+>Há outros serviços no ```docker-compose``` que serão usados mais para frente.
 
 A interface gráfica do Vault pode ser acessada por http://localhost:8200
 
@@ -132,7 +134,7 @@ Crie uma policy que permita somente leitura das secrets:
 
 ```sh
 vault policy write readers - <<EOF
-path "catalog/settings/mongo" {
+path "catalog/data/settings/mongo" {
   capabilities = ["read"]
 }
 EOF
@@ -167,4 +169,51 @@ Code: 403. Errors:
 * 1 error occurred:
 	* permission denied
 ```
+
+## Configurando o Agent
+
+
+Habilite o mecanismo de autenticação de AppRole
+```sh
+vault auth enable approle
+```
+
+Configure uma AppRole para ser usada pelo ```agent```.
+```sh
+vault write auth/approle/role/vault-agent \
+    secret_id_ttl=1440m \
+    token_num_uses=0 \
+    token_ttl=1440m \
+    token_max_ttl=1440m \
+    secret_id_num_uses=0 \
+    token_policies=readers
+```
+
+
+
+Leia a chave, capture o ID da role e salve em um arquivo:
+```sh
+vault read auth/approle/role/vault-agent/role-id -format=json 
+```
+Armazene o valor de ```data.role_id``` no arquivo /vault/data/roleid
+```sh
+echo 763562cd-0ba0-8e3d-025c-732214d94538 > ./vault/data/roleid
+```
+
+Grave o secret ID e armazene-o valor de ```data.secret_id``` em um arquivo:
+```sh
+vault write -f auth/approle/role/vault-agent/secret-id  -format=json
+```
+
+```sh
+ echo 0b5631e6-227b-a18b-06ea-11c4076933c1 ./vault/data/secretid
+```
+
+Diretamente no terminal, execute o comando do docker compose para inicializar o ```agent````
+
+```sh
+docker compose up -d  vault-agent
+```
+
+
 

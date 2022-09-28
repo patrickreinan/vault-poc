@@ -3,9 +3,9 @@ services:
   vault:
     image: vault:1.11.3
     volumes:
-      - ${PWD}/vault/config:/vault/config
+      - ${PWD}/vault/config/server:/vault/config/server
       - ${PWD}/vault/data:/vault/data
-    command: "vault server -config=/vault/config/config.hcl"
+    command: "vault server -config=/vault/config/server/server-config.hcl"
     container_name: vault
     cap_add:
       - IPC_LOCK #vault needs to lock memory
@@ -13,6 +13,19 @@ services:
       - 8200:8200
     environment:
       - VAULT_ADDR=http://127.0.0.1:8200
+  vault-agent:
+    image: vault:1.11.3
+    volumes:
+      - ${PWD}/vault/config/agent:/vault/config/agent
+      - ${PWD}/vault/data:/vault/data
+    command: "vault agent -config=/vault/config/agent/agent-config.hcl"
+    container_name: vault-agent
+    cap_add:
+      - IPC_LOCK #vault needs to lock memory
+    environment:
+      - VAULT_ADDR=http://vault:8200
+    networks:
+      default:
 
      
      
