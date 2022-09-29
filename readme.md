@@ -17,7 +17,7 @@
 docker compose up -d vault
 ```
 
->Há outros serviços no ```docker-compose``` que serão usados mais para frente.
+>Há outros serviços no ```docker-compose``` que serão utilizados em outro momento.
 
 A interface gráfica do Vault pode ser acessada por http://localhost:8200
 
