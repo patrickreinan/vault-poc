@@ -218,23 +218,6 @@ Armazene-o valor de ```data.secret_id``` em um arquivo:
  echo 0b5631e6-227b-a18b-06ea-11c4076933c1 /vault/data/secretid
 ```
 
-Diretamente no terminal (fora do container do Vault), execute o comando do docker compose para inicializar o ```agent````
-
-```sh
-docker compose up -d  vault-agent
-```
-Ainda no terminal, leia o arquivo ./vault/data/vars.env usando um comando direto no ```container```
-```sh
-docker exec vault-agent cat /vault/data/vars.env
-```
-
-
-```
-export MONGODB__ConnectionString=mongodb://mongodb:27017
-export MONGODB__CollectionName=CatalogItems
-export MONGODB__DatabaseName=Catalog
-```
-
 Ative a aplicação ```catalog-api```
 ```sh
 docker compose up -d catalog-api 
