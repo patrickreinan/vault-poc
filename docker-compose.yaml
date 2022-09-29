@@ -27,16 +27,27 @@ services:
   catalog-api:
     depends_on:
       - mongodb
+      - vault-agent
     image: patrickreinan/commerce-catalogapi:latest
     container_name: catalogapi
     ports:
     - 8080:80
     environment:
       - CATALOG__VERSION=1
-    env_file:
-      - ./vault/data/vars.env
     volumes:
       - ${PWD}/vault/data:/vault/data
+    entrypoint: |
+      /bin/bash -c "
+        while [ ! -f /vault/data/vars.env ]
+        do
+          sleep 2
+        done
+        
+        . /vault/data/vars.env
+        env
+        dotnet catalog-api.dll
+      "
+
   mongodb:
     image: mongo
     container_name: mongo
