@@ -87,7 +87,7 @@ Sealed                  false
 ```
 
 ## Acessar
-Acesse o Vault usando o root token presente no arquivo ``cluster-keys.json``
+Faça o login no Vault usando o root token presente no arquivo ``cluster-keys.json``
 
 ```sh
 vault login <token>
@@ -105,7 +105,7 @@ again. Future Vault requests will automatically use this token.
 Ative o mecanismo KV (Key Value) para armamzenar seus segredos.
 
 ```sh
-vault secrets enable -path=catalog/settings/mongo kv-v2
+vault secrets enable -path=catalog kv-v2
 ```
 
 ## Criar as secrets
@@ -152,10 +152,14 @@ Recupere o novo token fazendo a leitura do arquivo:
 cat /vault/data/reader-token.json
 ```
 
-Faça o login com este novo token e tente excluir as chaves:
+Faça o login com este novo token:
 
 ```sh
 vault login <token>
+```
+
+Tente excluir as chaves:
+```sh
 vault kv delete catalog/settings/mongo
 ```
 
@@ -171,7 +175,10 @@ Code: 403. Errors:
 ```
 
 ## Configurando o Agent
-
+Efetue o logon novamente com o ```root_token```
+```sh
+vault login <token>
+```
 
 Habilite o mecanismo de autenticação de AppRole
 ```sh
@@ -191,29 +198,34 @@ vault write auth/approle/role/vault-agent \
 
 
 
-Leia a chave, capture o ID da role e salve em um arquivo:
+Leia a chave, capture o ID da role:
 ```sh
 vault read auth/approle/role/vault-agent/role-id -format=json 
 ```
 Armazene o valor de ```data.role_id``` no arquivo /vault/data/roleid
 ```sh
-echo 763562cd-0ba0-8e3d-025c-732214d94538 > ./vault/data/roleid
+echo 763562cd-0ba0-8e3d-025c-732214d94538 > /vault/data/roleid
 ```
 
-Grave o secret ID e armazene-o valor de ```data.secret_id``` em um arquivo:
+Grave o secret ID:
 ```sh
 vault write -f auth/approle/role/vault-agent/secret-id  -format=json
 ```
 
+Armazene-o valor de ```data.secret_id``` em um arquivo:
+
 ```sh
- echo 0b5631e6-227b-a18b-06ea-11c4076933c1 ./vault/data/secretid
+ echo 0b5631e6-227b-a18b-06ea-11c4076933c1 /vault/data/secretid
 ```
 
-Diretamente no terminal, execute o comando do docker compose para inicializar o ```agent````
+Diretamente no terminal (fora do container do Vault), execute o comando do docker compose para inicializar o ```agent````
 
 ```sh
 docker compose up -d  vault-agent
 ```
-
+Ainda no terminal, leia o arquivo ./vault/data/vars.env usando um comando direto no ```container```
+```sh
+docker exec vault-agent cat /vault/data/vars.env
+```
 
 
