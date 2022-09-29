@@ -24,10 +24,24 @@ services:
       - IPC_LOCK #vault needs to lock memory
     environment:
       - VAULT_ADDR=http://vault:8200
-    networks:
-      default:
-
-     
+  catalog-api:
+    depends_on:
+      - mongodb
+    image: patrickreinan/commerce-catalogapi:latest
+    container_name: catalogapi
+    ports:
+    - 8080:80
+    environment:
+      - CATALOG__VERSION=1
+    env_file:
+      - ./vault/data/vars.env
+    volumes:
+      - ${PWD}/vault/data:/vault/data
+  mongodb:
+    image: mongo
+    container_name: mongo
+networks:
+  default:
      
      
 

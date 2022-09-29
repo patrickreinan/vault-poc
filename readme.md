@@ -229,3 +229,30 @@ docker exec vault-agent cat /vault/data/vars.env
 ```
 
 
+```
+export MONGODB__ConnectionString=mongodb://mongodb:27017
+export MONGODB__CollectionName=CatalogItems
+export MONGODB__DatabaseName=Catalog
+```
+
+Ative a aplicação ```catalog-api```
+```sh
+docker compose up -d catalog-api 
+```
+
+Verifique se ela está respondendo
+
+```sh
+curl -i http://localhost:8080/catalog/items
+```
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Thu, 29 Sep 2022 02:55:28 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+version: 1
+
+[]      
+```
